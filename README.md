@@ -5,7 +5,7 @@
 
 
 **한 것**
-
+![image](https://github.com/jpotw/summarize_chattingroom/assets/105954991/4cabd5c5-9d20-4d2f-b749-b0247e7618e7)
 - 카카오톡 요약봇 만드는 중
 - 하이라이트 친 부분까지 함 약 5시간 동안 한 거..
 - 겁나 삽질했다.
