@@ -3,7 +3,6 @@
 ## 2023-12-06
 
 
-IMG/IMG_0079.jpeg
 
 **한 것**
 
@@ -130,3 +129,75 @@ Ctrl / 안 되면 Microsoft 입력기로 바꿔주면 됨
 
 아 뭔가 아쉽다. 
 코딩 웨이렇게 어려움
+
+
+
+
+## 2023-12-09
+
+
+### 한 것
+
+- 일단 끝냄
+- 아쉬운 점들:
+1) 아직도 랭체인을 잘 모르겠다. 체인이 막 엮여서 어떻게 되는데 그 원리를 잘 모르겟음
+2) 한 버튼을 누르면 다른 버튼의 내용이 사라지는 현상
+3) QA를 챗봇느낌으로 내보고 싶었는데 지금은 Q->A->A삭제->Q-> ... 이런 식으로 되는 것도 좀 아쉬움
+
+
+### 4일동안 하면서 느낀 점
+- 막히는 건 상관없다. 처음 하는 거니까.
+- 그래도 기록은 해야 댐: 언제, 뭘 했는데, 뭘 하다가 막혀서 뭘 검색했는데, 뭐가 안 나와서, 또 뭘 했는데 ...
+- 그리고 구체적으로 물어봐야 상대방도 더 잘 알려줄 수 있음. 
+- 그러니까 적자. 그리고 남들이 봐도 이해될 정도로 깔끔하게 두괄식으로
+- 이 README 파일도 내일 다시 깔끔하게 정리하자
+
+
+**꿀팁**
+- Langchain의 Document는 page_content와 metadata를 가진 class임. page_content에 chunck가 저장되고 Document(page content = ' ') ' '안에 chunck가 들어감.
+
+
+
+지난 2시간 동안:
+- Summarize 기능 구현에서 헤맴 (참고로 어제도 못 함 ㅋㅋ) 
+	- 왜?
+	  - langchain 공식 문서 대로 했는데 계속 에러가 뜸. (뭔 에러였는지 까먹..)
+	  - Youtube에서 langchain 요약하는 거에 대해서 알려주는데 7개월 전 영상이라 그런가 지금 버전에 없는 함수를 쓰고 잇음..
+	  - 일단 커스텀 프롬프트를 쓰는 순간 지옥행. 무조건 에러 뜸. 그리고 나도 코드를 이해를 못하겟음.
+	  - chatgpt나 bard한테 물어봐도 지들도 랭체인 문서 잘 모른다고 함.
+		  - 현재(16:11) 마지막 try: 구글에 '랭체인 요약' 한국말로 검색해서 블로그 읽는중
+
+
+
+
+**빡치는 함수 복습**
+
+```
+chain = load_summarize_chain(llm, 
+                             map_prompt=prompt, 
+                             combine_prompt=combine_prompt, 
+                             chain_type='map_reduce', 
+                             verbose=False)
+```
+
+map reduce 방식을 쓸 경우 map_prompt에 text를 assign 한 다음 combine_prompt에서 한 번에 처리함
+
+
+- 와 드디어 **Created a chunk of size 1738, which is longer than the specified 200** 지옥에서 벗어남
+	- 왜 무한오류였냐, 정확한 이유는 아직 모르겠으나 **seperator**를 정해주지 않으면 잘 못 자르는 것 같음 (얘가 임의적으로 자르기 시작함)
+
+```
+text_splitter = CharacterTextSplitter(
+
+             separator="\n",
+
+             chunk_size=200,
+
+             chunk_overlap=20,
+
+             length_function = len,
+
+             is_separator_regex = False,
+
+        )
+```
