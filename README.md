@@ -35,7 +35,7 @@
 
 
 ### 헤맸던 함수 복습:
-
+```
 <uploaded_file을 받는다>
 def make_new_file(uploaded_document):
     <현재 날짜와 타겟 날짜를 설정한다. 타겟 날짜는 하루 전>
@@ -68,7 +68,7 @@ def make_new_file(uploaded_document):
         st.write("수정되었습니다.")
         <이제 다음 함수에서 쓸 수정된 txt파일을 빼주자>
         return new_content
-   
+```
 
 ### 꿀팁:
 Ctrl / 안 되면 Microsoft 입력기로 바꿔주면 됨 
