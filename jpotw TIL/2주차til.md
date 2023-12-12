@@ -46,3 +46,166 @@ input_printer(myname=jp)
 **.items()**는 딕셔너리의 키와 값을 튜플로 묶어 반환하는 메서드입니다. 따라서 kwargs.items()는 kwargs 매개변수에 전달된 키워드 인자의 이름과 값을 튜플로 묶어 반환합니다.
 
 **{0}과 {1}**은 format() 메서드의 인수로 사용됩니다. format() 메서드는 문자열을 형식 지정하는 메서드입니다. {0}은 key 변수의 값을 나타내고, {1}은 value 변수의 값을 나타냅니다.
+
+
+
+
+## 2023-12-12
+
+
+**Langchain에서 Huggingface Embeddings를 만들기 위한 환경 세팅(안 끝남; 나중에 수정해야 됨)**
+
+```
+pip install sentence_transformers # HuggingFace Embedding 사용 위해 필요
+```
+
+
+- .env 파일에
+```
+HUGGINGFACEHUB_API_TOKEN = “hf-xxx”
+```
+
+- main.py에
+```
+from langchain.embeddings import HuggingFaceEmbeddings
+
+
+os.environ[“HUGGINGFACEHUB_API_TOKEN”] = HUGGINGFACEHUB_API_TOKEN
+```
+
+
+
+**loader.load_and_split() 함수에서**
+
+```
+text_splitter= xxx
+
+docs = loader.load_and_split()
+```
+
+이런 식으로 하면 내가 원하는 character split 무시하고 지맘대로 자름
+
+
+지맘대로:
+**TextSplitter 기본값(참고)**
+
+```
+class TextSplitter(BaseDocumentTransformer, ABC):
+
+    """Interface for splitting text into chunks."""
+
+  
+
+    def __init__(
+
+        self,
+
+        chunk_size: int = 4000,
+
+        chunk_overlap: int = 200,
+
+        length_function: Callable[[str], int] = len,
+
+        keep_separator: bool = False,
+
+        add_start_index: bool = False,
+
+        strip_whitespace: bool = True,
+
+    )
+```
+
+
+
+이걸 피해주려면 
+```
+text_splitter= xxx
+
+docs = loader.load_and_split(**text_splitter=text_splitter**)
+```
+
+이렇게 assign해주자.
+
+
+
+
+
+vectore store (chromadb) 가 이미 만들어진 상태에서는 코드를 고쳐도 똑같은 현상이 나왔다. (덮어쓰기가 안 되는건가?) 암튼 emb 지워주고 다시 돌리니까 이제 정상출력했음.
+
+
+**databse duplicate(복제) 문제**
+
+qa process와 load - embed process를 구분짓는다!
+
+
+그래서 Langchain에서는 Retriever를 쓴다.
+
+Retriever: Str을 받고 그와 가장 관련된 문서들을 return하는 기능을 갖춘 데이터베이스.
+
+문제는 database들마다 세세한 세부설정이 다르다.
+
+그래서 각 데이터베이스가 통일된 구조를 갖게 하는 기능이 바로
+
+```
+retriever=db.as_retriever()
+```
+임.
+
+이러면 db라고 assign한 데이터베이스가 retriever가 돼서 RetrievalQA 함수를 쓸 수 있음.
+
+
+**RetrievalQA 함수의 기능**
+
+```
+chain = RetrievalQA.from_chain_type(
+
+    llm=chat,
+
+    retriever=retriever,
+
+    chain_type="stuff"
+
+)
+
+  
+
+result = chain.run("what is an interesting fact about language?")
+```
+
+
+### Langchain Summarization 정복하기 : stuff, map reduce, map_rerank
+
+
+map reduce 방식을 할 경우, halluciantion (없는 걸 있다 하거나, query와 관련성이 없는 output을 내는 것)
+
+
+→ 이를 해결하기 위한 map_rerank
+
+find the highest score and print it
+
+
+**꿀팁**
+랭체인 디버깅
+```
+import langchain
+
+langchain.debug=True
+```
+
+
+
+```
+EmbeddingsRedundantFilter
+```
+중복되는 정보들은 삭제하고 하나만 남김
+
+customize retriever
+
+
+lambda_mult = 유사도의 정도, 높아질수록 유사성이 있는 문서가 많음
+
+## 궁금한 것들 모음
+- init이 뭐임
+- self가 뭐임
+- @은 왜 붙는거임
+- async def는 뭐임
