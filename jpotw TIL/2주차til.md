@@ -126,11 +126,7 @@ docs = loader.load_and_split(**text_splitter=text_splitter**)
 
 이렇게 assign해주자.
 
-
-
-
-
-vectore store (chromadb) 가 이미 만들어진 상태에서는 코드를 고쳐도 똑같은 현상이 나왔다. (덮어쓰기가 안 되는건가?) 암튼 emb 지워주고 다시 돌리니까 이제 정상출력했음.
+→ vectore store (chromadb) 가 이미 만들어진 상태에서는 코드를 고쳐도 똑같은 현상이 나왔다. (덮어쓰기가 안 되는건가?) 암튼 emb 지워주고 다시 돌리니까 이제 정상출력했음.
 
 
 **databse duplicate(복제) 문제**
@@ -209,3 +205,118 @@ lambda_mult = 유사도의 정도, 높아질수록 유사성이 있는 문서가
 - self가 뭐임
 - @은 왜 붙는거임
 - async def는 뭐임
+
+
+## 2023-12-14
+
+
+### 한 것
+- GPT4V를 어떻게 활용할지에 대해 생각해보고 있음.
+
+
+### 리뷰
+
+### Async 와 Await 
+
+- **Async functions** let you write code that does multiple things at once, like a pro chef.
+- **Await** lets you pause your code while waiting for something to happen, like getting more flour for your cake.
+- Together, they make your code more efficient and responsive, just like a well-oiled kitchen.
+
+- In the example you provided, the `await puppeteer.launch` makes the code wait for the browser to launch before assigning it to the `browser` variable. This ensures that the code doesn't try to perform any operations on the browser before it's ready.
+**Think of it like this:**
+
+- Async is the oven that allows you to bake multiple things at once.
+- Await is like checking on each dish individually to see if it's done before taking it out.
+- The oven cooks all the dishes simultaneously, but you wouldn't take them out until each one is ready.
+
+보통 같이 쓰임
+
+
+
+**3시 20분~ : 30+분 삽질한 이유 복기**
+
+```
+PS C:\ai_projects\blog_agent> npm run main
+Debugger attached.
+npm ERR! Missing script: "main"
+npm ERR!
+npm ERR! To see a list of scripts, run:
+npm ERR!   npm run
+
+npm ERR! A complete log of this run can be found in:
+npm ERR!     C:\Users\parkj\AppData\Local\npm-cache\_logs\2023-12-14T06_53_38_214Z-debug-0.log
+Waiting for the debugger to disconnect...
+```
+
+이와 비슷한 에러가 계속 떴다.
+
+package.json 문제인데 
+
+scripts 안의 파일의 경우 
+```
+npm run xxx.js
+```
+이런 식으로 돌리면 된다.
+
+하지만 scripts 밖에 있는 파일은 **node xxx.js** 라고 돌려줘야 함.
+
+
+# 2023-12-15
+
+
+
+
+### ImportError: cannot import name 'OpenAI' from 'openai'
+
+```
+from openai import OpenAI
+```
+
+를 했는데 자꾸
+
+```
+ImportError: cannot import name 'OpenAI' from 'openai'
+```
+
+이렇게 뜸.
+
+
+결론은 버전이 잘못 되었거나 제대로 다운이 안 돼서 그렇다고 한다.
+
+해결한 방법:
+
+```
+pip uninstall openai
+pip install openai
+```
+
+하니까 다시 됨..
+
+
+### Protocol Error
+
+```
+node screenshot.js
+```
+를 하면 어제까지는 멀쩡하게 됐는데 
+
+```
+C:\ai_projects\blog_agent\node_modules\puppeteer-core\lib\cjs\puppeteer\common\CallbackRegistry.js:96
+    #error = new Errors_js_1.ProtocolError();
+             ^
+
+ProtocolError: Protocol error (Page.navigate): Invalid parameters Failed to deserialize params.url - BINDINGS: mandatory field missing at position 50
+```
+
+계-속 이 에러 뜸. 왜 이러는지 모르겟음.
+
+
+
+	with: 코드 블럭이 끝나면 자동으로 닫힘
+
+    f.read(): 전체 파일을 읽고 메모리에 저장
+
+    base64.b64encode(): 데이터를 base64로 암호화해서 메모리가 더 쉽고 정확하게 할 수 있도록 도움.
+
+    decode 다시 base64string을 python string으로 변환
+
