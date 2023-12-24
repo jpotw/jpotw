@@ -50,7 +50,7 @@ input_printer(myname=jp)
 
 
 
-## 2023-12-12
+# 2023-12-12
 
 
 **Langchain에서 Huggingface Embeddings를 만들기 위한 환경 세팅(안 끝남; 나중에 수정해야 됨)**
@@ -200,14 +200,14 @@ customize retriever
 
 lambda_mult = 유사도의 정도, 높아질수록 유사성이 있는 문서가 많음
 
-## 궁금한 것들 모음
+**궁금한 것들 모음**
 - init이 뭐임
 - self가 뭐임
 - @은 왜 붙는거임
 - async def는 뭐임
 
 
-## 2023-12-14
+# 2023-12-14
 
 
 ### 한 것
