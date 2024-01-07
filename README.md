@@ -21,3 +21,9 @@
 - Flask 공부중
 - Brian님이 내준 숙제 하는중 
 - 사실 오늘 끝내려 했는데 아직 다 못 끝냄
+
+# 5주차에 한 것
+- bookshorts 회원가입, 로그인, 히스토리 확인하는 거 다 만듦
+- Flask 공부 조금
+- thegigabrain 에서 영감을 받아 dcGPT에 대한 아이디어 구상
+	- 이를 위해 RAG(검색증강생성 기술), Langchain 학습중
