@@ -1,10 +1,11 @@
-# TIL 
-## 회고하기
+# 1주차 TIL 
+
 
 - python 및 streamlit.io를 이용한 카카오톡 요약 봇을 만들었다. 
 
 
-**What I've Learned**
+## What I've Learned
+
 - 앞으로 코딩 짤 때:
   - 큰그림부터 그린다. (세세한 건 일단 무시, 전체 사이클을 그려본다)
   - h1,h2,h3태그로 아웃라인을 잡아준다 (이래야 헛짓거리 안 함)
@@ -13,7 +14,7 @@
 - 자세한 건 뒤에
 
 
-## 2023-12-06
+# 2023-12-06
 
 **한 것**
 
@@ -36,7 +37,7 @@
 
 
 
-## 2023-12-07
+# 2023-12-07
 
 **한 것**
 - 오늘도 한 5~6시간 정도 했다.
@@ -51,10 +52,11 @@
 def make_new_file(uploaded_document):
     <현재 날짜와 타겟 날짜를 설정한다. 타겟 날짜는 하루 전>
     current_date = datetime.datetime.now()
-    target_date = current_date - datetime.timedelta(days=1)
+    target_date = current_date - datetime.timedelta(days=1) `timedelta가 gap을 의미한다`
     <uploaded_document 문서를 이제 읽어줘야 한다. .read().decode 함수로 읽어주자>
-    file = uploaded_document.read().decode("utf-8", errors="ignore")
+    file = uploaded_document.read().decode("utf-8", errors="ignore") `한국어 깨짐 방지`
 
+```
     <날짜와 시간의 포맷을 정한다.>
     date_pattern = re.compile(r'\d{4}년 \d{1,2}월 \d{1,2}일')
 
@@ -79,6 +81,7 @@ def make_new_file(uploaded_document):
         st.write("수정되었습니다.")
         <이제 다음 함수에서 쓸 수정된 txt파일을 빼주자>
         return new_content
+```
    
 
 ### 꿀팁:
@@ -95,7 +98,7 @@ Ctrl / 안 되면 Microsoft 입력기로 바꿔주면 됨
 
 
 
-## 2023-12-08
+# 2023-12-08
 
 **한 것**
 - 3~4시간 정도
@@ -144,8 +147,7 @@ Ctrl / 안 되면 Microsoft 입력기로 바꿔주면 됨
 
 
 
-## 2023-12-09
-
+# 2023-12-09
 
 ### 한 것
 
@@ -183,7 +185,7 @@ Ctrl / 안 되면 Microsoft 입력기로 바꿔주면 됨
 
 **빡치는 함수 복습**
 
-```
+```python
 chain = load_summarize_chain(llm, 
                              map_prompt=prompt, 
                              combine_prompt=combine_prompt, 
@@ -197,24 +199,18 @@ map reduce 방식을 쓸 경우 map_prompt에 text를 assign 한 다음 combine_
 - 와 드디어 **Created a chunk of size 1738, which is longer than the specified 200** 지옥에서 벗어남
 	- 왜 무한오류였냐, 정확한 이유는 아직 모르겠으나 **seperator**를 정해주지 않으면 잘 못 자르는 것 같음 (얘가 임의적으로 자르기 시작함)
 
-```
+```python
 text_splitter = CharacterTextSplitter(
-
              separator="\n",
-
              chunk_size=200,
-
              chunk_overlap=20,
-
              length_function = len,
-
              is_separator_regex = False,
-
         )
 ```
 
 
-## 2023-12-10 (첫 과제 마지막 날)
+# 2023-12-10 (첫 과제 마지막 날)
 
 **한 것**
 

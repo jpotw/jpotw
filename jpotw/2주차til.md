@@ -53,7 +53,7 @@ input_printer(myname=jp)
 # 2023-12-12
 
 
-**Langchain에서 Huggingface Embeddings를 만들기 위한 환경 세팅(안 끝남; 나중에 수정해야 됨)**
+**Langchain에서 Huggingface Embeddings를 만들기 위한 환경 세팅(안 끝남; 나중에 수정해야 됨)** → 2024-01-14에 수정
 
 ```
 pip install sentence_transformers # HuggingFace Embedding 사용 위해 필요
@@ -64,81 +64,66 @@ pip install sentence_transformers # HuggingFace Embedding 사용 위해 필요
 ```
 HUGGINGFACEHUB_API_TOKEN = “hf-xxx”
 ```
+huggingface 공홈을 들어가면 찾을 수 잇다
 
+
+(Chroma Vectorstore 기준)
 - main.py에
-```
-from langchain.embeddings import HuggingFaceEmbeddings
+```python
+from langchain.embeddings.huggingface import HuggingFaceEmbeddings
+from langchain.document_loaders.text import TextLoader
+from langchain.text_splitter import CharacterTextSplitter
+from langchain.vectorstores.chroma import Chroma 
 
 
-os.environ[“HUGGINGFACEHUB_API_TOKEN”] = HUGGINGFACEHUB_API_TOKEN
-```
+load_dotenv()
+inference_api_key = os.getenv("HUGGINGFACEHUB_API_TOKEN")
+
+model_name="jhgan/ko-sbert-nli" # 한국어 임베딩용 모델이다. 원하는 모델 갖고 와서 쓸 수 있다.
+model_kwargs= {'device': 'cpu'}
+encode_kwargs={'normalize_embeddings': True}
+
+# Embedding 정의
+hf = HuggingFaceEmbeddings(
+    model_name=model_name,
+    model_kwargs=model_kwargs,
+    encode_kwargs=encode_kwargs
+) # inference_api_key가 자동으로 hf에 들어가는 건가 ?? 이건 나도 왜 이런지 모르겠네 (jhgan/ko-sbert-nli가 public model이라 그런듯)
 
 
+# Text Split 정의 by CharacterTextSplitter
+text_splitter = CharacterTextSplitter(
+    separator="\n",
+    chunk_size = 600,
+    chunk_overlap  = 0,
+    length_function = len,
+    is_separator_regex = False,
+)
 
-**loader.load_and_split() 함수에서**
+# 텍스트를 불러오고 스플릿한다. 이때 txt의 위치를 잘 assign해주자
+loader = TextLoader('.txt', encoding = 'UTF-8')
+docs = loader.load_and_split(text_splitter=text_splitter)
 
-```
-text_splitter= xxx
-
-docs = loader.load_and_split()
-```
-
-이런 식으로 하면 내가 원하는 character split 무시하고 지맘대로 자름
-
-
-지맘대로:
-**TextSplitter 기본값(참고)**
-
-```
-class TextSplitter(BaseDocumentTransformer, ABC):
-
-    """Interface for splitting text into chunks."""
-
-  
-
-    def __init__(
-
-        self,
-
-        chunk_size: int = 4000,
-
-        chunk_overlap: int = 200,
-
-        length_function: Callable[[str], int] = len,
-
-        keep_separator: bool = False,
-
-        add_start_index: bool = False,
-
-        strip_whitespace: bool = True,
-
-    )
+# Embedding을 하고 Chroma DB에 값 저장, persist_directory를 설정해주면 한 번만 돌려도 db 계속 갖다 쓸 수 있음
+db = Chroma.from_documents(
+    docs,
+    embedding=hf,
+    persist_directory= "hf"
+)
 ```
 
 
-
-이걸 피해주려면 
-```
-text_splitter= xxx
-
-docs = loader.load_and_split(**text_splitter=text_splitter**)
-```
-
-이렇게 assign해주자.
-
-→ vectore store (chromadb) 가 이미 만들어진 상태에서는 코드를 고쳐도 똑같은 현상이 나왔다. (덮어쓰기가 안 되는건가?) 암튼 emb 지워주고 다시 돌리니까 이제 정상출력했음.
+**databse duplicate(복제) 문제** → qa process와 load - embed process를 구분짓는다!
 
 
-**databse duplicate(복제) 문제**
+## Retreival
 
-qa process와 load - embed process를 구분짓는다!
+Langchain에서는 DB를 이용해 Retriever를 쓴다. (RAG)
 
-
-그래서 Langchain에서는 Retriever를 쓴다.
 
 Retriever: Str을 받고 그와 가장 관련된 문서들을 return하는 기능을 갖춘 데이터베이스.
 
-문제는 database들마다 세세한 세부설정이 다르다.
+문제는 database마다 세세한 세부설정이 다르다.
 
 그래서 각 데이터베이스가 통일된 구조를 갖게 하는 기능이 바로
 
@@ -150,69 +135,46 @@ retriever=db.as_retriever()
 이러면 db라고 assign한 데이터베이스가 retriever가 돼서 RetrievalQA 함수를 쓸 수 있음.
 
 
+
 **RetrievalQA 함수의 기능**
 
 ```
 chain = RetrievalQA.from_chain_type(
-
     llm=chat,
-
     retriever=retriever,
-
-    chain_type="stuff"
-
+    chain_type="stuff" # stuff가 제일 단순함
 )
 
-  
 
 result = chain.run("what is an interesting fact about language?")
 ```
 
 
-### Langchain Summarization 정복하기 : stuff, map reduce, map_rerank
+## Langchain Summarization 정복하기 : stuff, map reduce, map_rerank
 
 
-map reduce 방식을 할 경우, halluciantion (없는 걸 있다 하거나, query와 관련성이 없는 output을 내는 것)
 
 
-→ 이를 해결하기 위한 map_rerank
 
-find the highest score and print it
-
-
-**꿀팁**
 랭체인 디버깅
 ```
 import langchain
-
 langchain.debug=True
 ```
 
 
 
-```
-EmbeddingsRedundantFilter
-```
-중복되는 정보들은 삭제하고 하나만 남김
-
-customize retriever
-
-
-lambda_mult = 유사도의 정도, 높아질수록 유사성이 있는 문서가 많음
-
 **궁금한 것들 모음**
-- init이 뭐임
-- self가 뭐임
+- init이 뭐임 → initialize. 걍 기본값이라 생각하면 댐
+- self가 뭐임 → 나중에 클래스 꺼내 쓸 때의 객체
 - @은 왜 붙는거임
-- async def는 뭐임
+- async def는 뭐임 → 이건 아직도 모르게는데?
 
 
 # 2023-12-14
 
-
 ### 한 것
 - GPT4V를 어떻게 활용할지에 대해 생각해보고 있음.
-
 
 ### 리뷰
 
@@ -319,4 +281,3 @@ ProtocolError: Protocol error (Page.navigate): Invalid parameters Failed to dese
     base64.b64encode(): 데이터를 base64로 암호화해서 메모리가 더 쉽고 정확하게 할 수 있도록 도움.
 
     decode 다시 base64string을 python string으로 변환
-

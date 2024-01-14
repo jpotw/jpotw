@@ -262,7 +262,6 @@ redirect(url_for('endpoint_name', arg1=value1, arg2=value2))
 항상 무언가를 불러올 때 /를 쓰는 걸 기억할 것
 
 
-`   request.form.get`: Flask에서 웹 폼(form)에서 제출된 데이터를 가져오는 메서드
 
 
 
@@ -310,7 +309,7 @@ SQLAlchemy를 통해 QandA DB 생성
 
 ## 배운 점
 
-- db를 생성할 때 primary key로 설정하면 구분이 가능해진다. id처럼 배타성이 필요한 것들에는 primary key=True로 설정해줄 것
+- db를 생성할 때 primary key로 설정하면 구분이 가능해진다. id처럼 **배타성이 필요한 것들**에는 primary key=True로 설정해줄 것
 ```
 class db:
 	id = db.Column(..., primary_key = True)
@@ -338,27 +337,16 @@ class db:
 - db에 데이터가 저장됐는지 확인하는 쉬운 방법: flask shell 킨 후 ModelName.query.all() 입력하면 입력된 데이터들이 쭉 나옴.
 ```
 @bp.route('/summarize', methods=['POST'])
-
 def handle_summarize():
-
     bookinfo = BookInfo()
-
     bookinfo.title = request.form['title']
-
     bookinfo.author = request.form['author']
-
     bookinfo.create_date=datetime.utcnow()
-
     # 데이터베이스에 저장
-
     db.session.add(bookinfo)
-
     db.session.commit()
 
-  
-
     # 요약 페이지로 리디렉션
-
     return render_template('summarize.html', book_id=bookinfo.id)
 ```
 이 상태였는데도 두 가지 문제가 있었는데:
@@ -388,16 +376,13 @@ Error: Could not locate a Flask application. Use the 'flask --app' option, 'FLAS
 
 
 - What is app.register_blueprint function ?
-- 왜 from .views import main_views에서 .이 붙음?
+- 왜 from .views import main_views에서 .이 붙음? 
+	- → 이게 상대경로라는 건데 .의 경우 현재 디렉토리(폴더) 안에 있는 파일을 의미함. 이 이후로 .이 하나 늘수록 부모 디렉토리(더 상위의 폴더)를 의미하는 거임. 그래서 이론상 .. ... .... 등이 나올 수 있음.
 - 헤맸던 부분: 기존 html 파일에서 버튼을 클릭하면 다른 페이지가 나오는 동시에 입력 내용이 db에 저장되게 하고 싶었다. JS의 Ajax만 가능한 줄 알았는데, post만 allow하는 방식으로 하면 가능.. ㅇㅇ
-- 
-
 
 
 ## 예쁘게 말고 되게,최소 기능 구현부터 집중, 안 되면 쪼갤 것, 할 수 있는 건 분명히 있다
-
-
-
+→ 내가 이런 명언을 햇다니ㅜ
 
 # 2023-12-30
 
@@ -575,7 +560,7 @@ def login():
 
 
 -  return을 Str 말고 alert으로 바꾸는 법: python script에서는 alert을 직접 쓰지는 못한다. 그래서 html template 에 javascirpt script를 추가해줘서 거기로 redirect한 후 python에서 작성한 메세지를 alert message로 print시키면 됨.
-- views 안에 route가 잇는 경우, {view 이름}.{route 이름} 식으로 불러줘야 함
+- views 안에 route가 잇는 경우, {view 이름}.{route 매소드} 식으로 불러줘야 함
 - AJAX를 사용할 경우 새로고침을 하지 않고도 페이지가 로딩될 수 있다고 함.
 - AJAX 방식 쓰려다 자꾸 화면에 이상한 거 떠가지고 + 어차피 새 html파일 만드는 게 더 깔끔해서 그냥 summarize.html파일 만들기로 결정
 - flask 에서 redirect하는 방식은 GET 방식임. Flask return으로는 POST 방식으로 보낼 수가 없음. POST 방식 사용할 거면 AJAX나 form 방식을 이용해야 됨. url 접근을 막는 차선책은 return render_tempate.
