@@ -2,9 +2,24 @@
 
 
 
+
+
+
 # 각종 템플릿 
 
+##### `config.py`
 
+```python
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+import datetime
+
+
+app = Flask(__name__)
+app.config('SQLALCHEY_DATABASE_URI') = 'sqlite:///x.db' # url 아니고 uri임..
+db = SQLAlchemy(app)
+
+```
 
 ##### `cmd batch file`
 
@@ -80,6 +95,21 @@ return을 Str 말고 alert으로 바꾸는 법: python script에서는 alert을 
 # 자주 나오는 디버그 오류
 
 
+#### `HTML`
+
+```html
+<ul> 
+{% for option in options %} 
+<li>{{ option['name'] }}</li> 
+{% endfor %} 
+</ul>
+```
+
+`<li></li>`와 같은 태그는 loop 안에 들어가야 함.
+
+
+`{% extends "x.html" %}` 꼭 ""로 감싸주는 걸 잊지 말 것
++시작부터 안 돌아가는 프로그램의 경우, 초반에 잘못됐을 가능성이 높다는 것
 
 ##### `__init__.py`
 
@@ -145,7 +175,7 @@ When you make a model, make sure to update it w/ `flask db migrate, flask db upg
 ##### `SQLite 오류 방지`
 
 ```python
-from flask import Flask
+from flask import FlasWk
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import MetaData
@@ -178,6 +208,25 @@ def create_app():
 ```
 
 
+
+##### `flaskwtf 관련`
+
+FlaskForm class를 불러올 때는 꼭 괄호에 FlaskForm을 넣어주자:
+```python
+from flask_wtf import FlaskForm
+from wtforms import FileField, SubmitField
+from wtforms.validators import DataRequired
+
+class FileUploadForm(FlaskForm):
+    file = FileField('파일을 업로드하세요.', validators=[DataRequired()])
+    submit = SubmitField('업로드')
+```
+
+
+
+
+
+```
 
 # 용어 설명
 
@@ -369,7 +418,7 @@ from flask_wtf import FlaskFrom
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import DataRequired
 
-class LoginForm(FlaskForm): # class 이름(FlaskForm)
+class LoginForm(FlaskForm): # class 이름(FlaskForm) 붙여주기
     username = StringField('Username', validators=[DataRequired()]) 
     password = PasswordField('Password', validators=[DataRequired()])
     submit = SubmitField('Login')
@@ -465,6 +514,10 @@ for more visit: [Fields — WTForms Documentation (3.0.x)](https://wtforms.readt
     
     - Customize the appearance of forms with CSS to match the website's design.
     - Apply custom styles to form controls for a consistent user interface.
+
+
+cf) models and fields
+[Models and Fields — peewee 3.17.0 documentation (peewee-orm.com)](https://docs.peewee-orm.com/en/latest/peewee/models.html#field-types-table)
 
 
 **How to use Flaskform with models(database)**:
@@ -641,3 +694,99 @@ In summary, the wrapper function (`wrapped_view`) is like a service that adds so
 
 
 왜 안 되는지 도저히 모르겠다.
+
+
+
+
+
+##### `Cookie`
+
+**How to set a cookie** from @teamtreehouse
+
+```python
+import json
+
+@bp.route('/save', methods=['POST'])
+def save():
+	response = make_response(redirect(url_for('main.index')))
+	response.set_cookie('name', json.dumps(dict(request.form.items())))
+```
+
+request.form is immutableDict so we need to change it into a dict format in order to jsonify it.
+
+What is `json.dumps`?
+
+json dump string - basically creates a json string
+
+
+**`json.loads`** - takes that string and makes it into a python code again
+
+
+```python
+
+bp = ('save', __name__, url_prefix = '/save')
+
+def get_saved_data():
+	try:
+		data = json.loads(request.cookies.get('name'))
+	exept TypeError:
+		data = {}
+	return data
+
+```
+
+
+if you use get_saved_data with json.dumps, you can simplify the code like this:
+
+```python
+bp = ('save', __name__, url_prefix = '/save')
+
+def get_saved_data():
+	try:
+		data = json.loads(request.cookies.get('name'))
+	exept TypeError:
+		data = {}
+	return data
+
+@bp.route('/saved', methods=['POST'])
+def saved():
+	response = make_response(redirect(url_for('main.index')))
+	data = get_saved_data() # {}
+	data.update(dict(request.form.items()))
+	response.set_cookies(json.dumps(data))
+	return response
+```
+
+
+
+##### `flash`
+
+sending message back to html template (but I personally prefer to use alert using js(script) instead)
+
+
+
+##### `SQLAlchemy`
+
+```python
+from sqlalchemy import Table, Column, Integer, String
+
+user = Table(
+    "user",
+    metadata_obj,
+    Column("user_id", Integer, primary_key=True),
+    Column("user_name", String(16), nullable=False),
+    Column("email_address", String(60)),
+    Column("nickname", String(50), nullable=False),
+)
+```
+
+
+
+**When you are using Peewee library**
+
+- `ForeignKeyField` is to make relationship between models
+	- You need to add default values in ForeignKeyField Ex. `ForeignKeyField(A, backref="b", null =True)`
+	- When you use `backref='ingredients'` in the `ForeignKeyField`, Peewee automatically creates a reverse relationship. It does this by adding a virtual field named `ingredients` to the `Recipe` model. This field is not defined explicitly in your `Recipe` class; instead, it's added by Peewee under the hood.
+- You use `CharField` for string objects.
+
+
